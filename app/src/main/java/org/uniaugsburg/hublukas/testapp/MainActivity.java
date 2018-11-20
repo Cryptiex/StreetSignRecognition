@@ -2,6 +2,7 @@ package org.uniaugsburg.hublukas.testapp;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.Window;
@@ -22,7 +24,11 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 
@@ -67,7 +73,10 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getSupportActionBar().hide();
+
+        if(getSupportActionBar() != null)
+            getSupportActionBar().hide();
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
@@ -97,7 +106,7 @@ public class MainActivity extends AppCompatActivity
         });
 
 
-        openCameraButton = (Button) findViewById(R.id.openCameraButton);
+        openCameraButton = findViewById(R.id.openCameraButton);
 
 
 
@@ -123,6 +132,7 @@ public class MainActivity extends AppCompatActivity
             for(String cameraID : cameraIDList)
             {
                 CameraCharacteristics cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraID);
+
                 int lensFacing = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING);
 
                 // Search for the front facing camera
@@ -151,13 +161,14 @@ public class MainActivity extends AppCompatActivity
 
     private void setPreviewSize(CameraCharacteristics characteristics, int textureWidth, int textureHeight)
     {
-        //TODO: Set preview size dynamically
 
-        int width, height;
 
+        List<Size> bigEnough= new ArrayList<>();
         int displayRotation = this.getWindowManager().getDefaultDisplay().getRotation();
         int sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-        boolean swappedDimensions;
+        Point displaySize =  new Point();
+        this.getWindowManager().getDefaultDisplay().getSize(displaySize);
+        boolean swappedDimensions = false;
 
         if(displayRotation == Surface.ROTATION_0 || displayRotation == Surface.ROTATION_180)
         {
@@ -170,8 +181,36 @@ public class MainActivity extends AppCompatActivity
                 swappedDimensions = true;
         }
 
+        Size[] sizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(SurfaceTexture.class);
 
-        textureView.getSurfaceTexture().setDefaultBufferSize(1920, 1080);
+        for(Size size : sizes)
+        {
+            // Only consider sizes with the right apsect ratiow
+            if(size.getHeight() != size.getWidth() * displaySize.x / displaySize.y)
+                continue;
+
+            if(!swappedDimensions && size.getWidth() >= textureWidth && size.getHeight() >= textureHeight)
+                bigEnough.add(size);
+
+            else if(swappedDimensions && size.getHeight() >= textureWidth && size.getWidth() >= textureHeight)
+                bigEnough.add(size);
+        }
+
+        if(bigEnough.isEmpty())
+            return;
+
+        Size finalSize = Collections.max(bigEnough, new Comparator<Size>()
+        {
+            @Override
+            public int compare(Size o1, Size o2)
+            {
+                return Long.signum((long) o1.getWidth() * o1.getHeight() -
+                        (long) o2.getWidth() * o2.getHeight());
+            }
+        });
+
+
+        textureView.getSurfaceTexture().setDefaultBufferSize(finalSize.getWidth(), finalSize.getHeight());
 
 
     }
