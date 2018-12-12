@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">TestApp</string>
-    <string name="OpenCameraText">Open Camera</string>
+    <string name="app_name">Street Sign Recognition</string>
+    <string name="OpenCameraText">Analyze</string>
 </resources>

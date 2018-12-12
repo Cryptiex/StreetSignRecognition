@@ -19,9 +19,11 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -36,9 +38,11 @@ public class MainActivity extends AppCompatActivity
 {
 
     private TextureView textureView;
-    private Button openCameraButton;
+    private Button analyzeButton;
     private CameraDevice currentCamera;
     private CameraCaptureSession captureSession;
+    private Classifier classifier;
+    private TextView detectionTextView;
 
 
     private final CameraDevice.StateCallback cameraDeviceStateCallback = new CameraDevice.StateCallback()
@@ -105,11 +109,19 @@ public class MainActivity extends AppCompatActivity
             {}
         });
 
+        detectionTextView = findViewById(R.id.textView);
 
-        openCameraButton = findViewById(R.id.openCameraButton);
+        classifier = new Classifier(this.getApplicationContext());
 
-
-
+        analyzeButton = findViewById(R.id.analyzeButton);
+        analyzeButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                detectionTextView.setText("Detected: " + classifier.detect());
+            }
+        });
     }
 
     public void openCamera(int width, int height)

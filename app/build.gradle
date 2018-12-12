@@ -21,7 +21,9 @@ android {
         exclude 'META-INF/proguard/androidx-annotations.pro'
     }
 
-
+    aaptOptions{
+        noCompress "tflite"
+    }
 
 }
 
@@ -33,5 +35,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'androidx.annotation:annotation:1.0.0'
+    implementation 'org.tensorflow:tensorflow-lite:+'
 }
 
