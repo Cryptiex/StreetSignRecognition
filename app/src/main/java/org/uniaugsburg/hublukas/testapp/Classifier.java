@@ -19,7 +19,6 @@ import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Classifier
 {
@@ -141,11 +140,10 @@ public class Classifier
     }
 
 
-    // Wirft aktuell Fehler
+    // TODO: Use array instead of ArrayList
     private void loadLabels() throws IOException
     {
         BufferedReader abc = new BufferedReader(new InputStreamReader(context.getAssets().open(LABEL_FILE)));
-        List<String> lines = new ArrayList<String>();
 
         String line;
         ArrayList<String> labels = new ArrayList<>();
