@@ -9,13 +9,17 @@ import android.widget.Toast;
 
 import org.tensorflow.lite.Interpreter;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Classifier
 {
@@ -24,12 +28,14 @@ public class Classifier
     private static final int IMG_WIDTH = 224;
     private static final int PIXEL_SIZE = 3;
     private static final int BYTES_PER_CHANNEL = 1;
+    private static final String LABEL_FILE = "labels.txt";
 
 
     private  Interpreter interpreter;
     private Context context;
     private ByteBuffer inputImageBuffer;
     private byte[][] output = null;
+    private String[] labels;
 
     protected Classifier(Context context)
     {
@@ -43,6 +49,8 @@ public class Classifier
             // Creates a buffer with the natural byte order (Little/Big Endian)
             inputImageBuffer.order(ByteOrder.nativeOrder());
             output = new byte[1][1001];
+            labels = new String[1001];
+            loadLabels();
         }
         catch(IOException e)
         {
@@ -81,7 +89,7 @@ public class Classifier
         }
     }
 
-    protected int detect()
+    protected String detect()
     {
 
 
@@ -117,7 +125,7 @@ public class Classifier
         }
 
 
-        return prediction;
+        return labels[prediction];
 
     }
 
@@ -130,6 +138,26 @@ public class Classifier
         long declaredLength = fileDescriptor.getDeclaredLength();
 
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+    }
+
+
+    // Wirft aktuell Fehler
+    private void loadLabels() throws IOException
+    {
+        BufferedReader abc = new BufferedReader(new InputStreamReader(context.getAssets().open(LABEL_FILE)));
+        List<String> lines = new ArrayList<String>();
+
+        String line;
+        ArrayList<String> labels = new ArrayList<>();
+
+        while((line = abc.readLine()) != null)
+        {
+            labels.add(line);
+        }
+
+        abc.close();
+        this.labels = labels.toArray(new String[labels.size()]);
+;
     }
 
     public void stop()
