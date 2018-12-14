@@ -2,9 +2,7 @@ package org.uniaugsburg.hublukas.testapp;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.widget.Toast;
 
 import org.tensorflow.lite.Interpreter;
@@ -12,7 +10,6 @@ import org.tensorflow.lite.Interpreter;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -20,8 +17,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
-public class Classifier
-{
+public class Classifier {
     private static final int BATCH_SIZE = 1;
     private static final int IMG_HEIGHT = 224;
     private static final int IMG_WIDTH = 224;
@@ -88,12 +84,10 @@ public class Classifier
         }
     }
 
-    protected String detect()
+    protected String detect(Bitmap input)
     {
 
-
-
-        AssetManager assetManager = context.getAssets();
+        /*AssetManager assetManager = context.getAssets();
 
         InputStream istr;
         Bitmap bitmap = null;
@@ -102,10 +96,10 @@ public class Classifier
             bitmap = BitmapFactory.decodeStream(istr);
         } catch (IOException e) {
             // handle exception
-        }
+        }*/
 
 
-        convertBitmapToByteBuffer(bitmap);
+        convertBitmapToByteBuffer(input);
 
 
        interpreter.run(inputImageBuffer, output);
@@ -166,4 +160,6 @@ public class Classifier
 
         interpreter = null;
     }
+
+
 }

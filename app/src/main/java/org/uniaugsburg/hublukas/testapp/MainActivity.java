@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity
 
 
 
-
     //TODO: Write Camera2Manager class
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -48,8 +47,9 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
             {
-                camera2Manager =Camera2Manager.instance(context, activity, textureView);
-                camera2Manager.openCamera(width, height);
+                camera2Manager =Camera2Manager.instance(context, activity, textureView, width, height);
+                camera2Manager.openCamera();
+
             }
 
             @Override
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                detectionTextView.setText("Detected: " + classifier.detect());
+                detectionTextView.setText("Detected: " + classifier.detect(textureView.getBitmap(224,224)));
             }
         });
     }

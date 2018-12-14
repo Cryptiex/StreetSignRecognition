@@ -38,6 +38,8 @@ public class Camera2Manager
     private TextureView textureView;
     private Context context;
     private Activity activity;
+    private int width;
+    private int height;
 
     private final CameraDevice.StateCallback cameraDeviceStateCallback = new CameraDevice.StateCallback()
     {
@@ -64,22 +66,24 @@ public class Camera2Manager
         }
     };
 
-    private Camera2Manager(Context context, Activity activity, TextureView textureView)
+    private Camera2Manager(Context context, Activity activity, TextureView textureView, int width, int height)
     {
         this.context = context;
         this.activity = activity;
         this.textureView = textureView;
+        this.width = width;
+        this.height = height;
     }
 
-    public static Camera2Manager instance (Context context, Activity activity, TextureView textureView)
+    public static Camera2Manager instance (Context context, Activity activity, TextureView textureView, int width, int height)
     {
         if(camera2Manager == null)
-            camera2Manager = new Camera2Manager(context, activity, textureView);
+            camera2Manager = new Camera2Manager(context, activity, textureView, width, height);
 
         return camera2Manager;
     }
 
-    public void openCamera(int width, int height)
+    public void openCamera()
     {
         if(currentCamera != null)
             return;
@@ -240,6 +244,8 @@ public class Camera2Manager
 
         Log.i("TAG", "Created Capture Request");
     }
+
+
 }
 
 
