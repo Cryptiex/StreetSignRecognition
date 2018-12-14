@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
-    //TODO: Write Camera2Manager class
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -77,7 +77,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                detectionTextView.setText("Detected: " + classifier.detect(textureView.getBitmap(224,224)));
+                Prediction prediction = classifier.detect(textureView.getBitmap(224,224));
+                detectionTextView.setText("Detected: " + prediction.getLabel() + ": " + prediction.getConfidence());
             }
         });
     }

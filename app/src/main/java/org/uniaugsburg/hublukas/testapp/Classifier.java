@@ -23,10 +23,11 @@ public class Classifier {
     private static final int IMG_WIDTH = 224;
     private static final int PIXEL_SIZE = 3;
     private static final int BYTES_PER_CHANNEL = 1;
+    private static final int NUM_LABELS = 1001;
     private static final String LABEL_FILE = "labels.txt";
 
 
-    private  Interpreter interpreter;
+    private Interpreter interpreter;
     private Context context;
     private ByteBuffer inputImageBuffer;
     private byte[][] output = null;
@@ -43,8 +44,8 @@ public class Classifier {
 
             // Creates a buffer with the natural byte order (Little/Big Endian)
             inputImageBuffer.order(ByteOrder.nativeOrder());
-            output = new byte[1][1001];
-            labels = new String[1001];
+            output = new byte[1][NUM_LABELS];
+            labels = new String[NUM_LABELS];
             loadLabels();
         }
         catch(IOException e)
@@ -84,21 +85,8 @@ public class Classifier {
         }
     }
 
-    protected String detect(Bitmap input)
+    protected Prediction detect(Bitmap input)
     {
-
-        /*AssetManager assetManager = context.getAssets();
-
-        InputStream istr;
-        Bitmap bitmap = null;
-        try {
-            istr = assetManager.open("dog.bmp");
-            bitmap = BitmapFactory.decodeStream(istr);
-        } catch (IOException e) {
-            // handle exception
-        }*/
-
-
         convertBitmapToByteBuffer(input);
 
 
@@ -106,7 +94,7 @@ public class Classifier {
 
 
         byte max = Byte.MIN_VALUE;
-        int prediction = -1;
+        int prediction = 0;
 
         for(int i = 0; i < output[0].length; i++)
         {
@@ -118,7 +106,7 @@ public class Classifier {
         }
 
 
-        return labels[prediction];
+        return new Prediction(labels[prediction], max / 255.0f);
 
     }
 
