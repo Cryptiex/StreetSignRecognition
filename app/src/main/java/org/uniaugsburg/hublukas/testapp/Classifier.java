@@ -19,18 +19,19 @@ import java.util.ArrayList;
 
 public class Classifier {
     private static final int BATCH_SIZE = 1;
-    private static final int IMG_HEIGHT = 224;
-    private static final int IMG_WIDTH = 224;
+    public static final int IMG_HEIGHT = 64;
+    public static final int IMG_WIDTH = 64;
     private static final int PIXEL_SIZE = 3;
-    private static final int BYTES_PER_CHANNEL = 1;
-    private static final int NUM_LABELS = 1001;
-    private static final String LABEL_FILE = "labels.txt";
+    private static final int BYTES_PER_CHANNEL = 4; // 1 Byte = 8 Bit if quantisized, 4 Byte = 32 bit for float
+    private static final int NUM_LABELS = 43;
+    private static final String TFLITE_FILE = "GTSRB_model.tflite";
+    private static final String LABEL_FILE = "GTSRB_labels.txt";
 
 
     private Interpreter interpreter;
     private Context context;
     private ByteBuffer inputImageBuffer;
-    private byte[][] output = null;
+    private float[][] output = null;
     private String[] labels;
 
     protected Classifier(Context context)
@@ -38,13 +39,13 @@ public class Classifier {
         try
         {
             this.context = context;
-            interpreter = new Interpreter(loadModelFile("mobilenet_quant_v1_224.tflite"));
+            interpreter = new Interpreter(loadModelFile(TFLITE_FILE));
 
             inputImageBuffer = ByteBuffer.allocateDirect(BATCH_SIZE * IMG_HEIGHT * IMG_WIDTH * PIXEL_SIZE * BYTES_PER_CHANNEL);
 
             // Creates a buffer with the natural byte order (Little/Big Endian)
             inputImageBuffer.order(ByteOrder.nativeOrder());
-            output = new byte[1][NUM_LABELS];
+            output = new float[1][NUM_LABELS];
             labels = new String[NUM_LABELS];
             loadLabels();
         }
@@ -65,7 +66,7 @@ public class Classifier {
 
         // Resets Buffer
         inputImageBuffer.rewind();
-        bitmap.getPixels(bitmapPixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+        bitmap.getPixels(bitmapPixels, 0, IMG_WIDTH, 0, 0, IMG_WIDTH, IMG_HEIGHT);
 
         int pixelCounter = 0;
 
@@ -74,39 +75,52 @@ public class Classifier {
             for(int j = 0; j < IMG_HEIGHT; j++)
             {
                 // Red
-                inputImageBuffer.put((byte) ((bitmapPixels[pixelCounter] >> 16) & 0xFF));
+                inputImageBuffer.putFloat(((bitmapPixels[pixelCounter] >> 16) & 0xFF));
                 // Green
-                inputImageBuffer.put((byte) ((bitmapPixels[pixelCounter] >> 8) & 0xFF));
+                inputImageBuffer.putFloat(((bitmapPixels[pixelCounter] >> 8) & 0xFF));
                 // Blue
-                inputImageBuffer.put((byte) (bitmapPixels[pixelCounter] & 0xFF));
+                inputImageBuffer.putFloat(bitmapPixels[pixelCounter] & 0xFF);
+
+                //  inputImageBuffer.put((byte) (bitmapPixels[pixelCounter] & 0xFF)); for quantized
 
                 pixelCounter++;
             }
         }
+
     }
 
     protected Prediction detect(Bitmap input)
     {
-        convertBitmapToByteBuffer(input);
 
 
+       convertBitmapToByteBuffer(input);
        interpreter.run(inputImageBuffer, output);
 
 
-        byte max = Byte.MIN_VALUE;
+        //byte max = Byte.MIN_VALUE;
+        float  max = 0.0f;
         int prediction = 0;
 
         for(int i = 0; i < output[0].length; i++)
         {
-            if(Byte.compare(output[0][i], max) > 0)
+            // Only for quantized models
+            /*if(Byte.compare(output[0][i], max) > 0)
+            {
+                max = output[0][i];
+                prediction = i;
+            }*/
+
+            if(output[0][i] > max)
             {
                 max = output[0][i];
                 prediction = i;
             }
+
         }
 
 
-        return new Prediction(labels[prediction], max / 255.0f);
+        //return new Prediction(labels[prediction], max / 255.0f);
+        return new Prediction(labels[prediction], max);
 
     }
 

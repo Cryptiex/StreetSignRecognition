@@ -77,11 +77,15 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                Prediction prediction = classifier.detect(textureView.getBitmap(224,224));
+                Prediction prediction = classifier.detect(textureView.getBitmap(Classifier.IMG_WIDTH, Classifier.IMG_WIDTH));
                 detectionTextView.setText("Detected: " + prediction.getLabel() + ": " + prediction.getConfidence());
+
             }
         });
     }
+
+
+
 
 
     @Override
