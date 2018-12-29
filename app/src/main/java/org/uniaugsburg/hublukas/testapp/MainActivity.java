@@ -77,8 +77,28 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                Prediction prediction = classifier.detect(textureView.getBitmap(Classifier.IMG_WIDTH, Classifier.IMG_WIDTH));
-                detectionTextView.setText("Detected: " + prediction.getLabel() + ": " + prediction.getConfidence());
+
+                new Thread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        while(true)
+                        {
+                            final Prediction prediction = classifier.detect(textureView.getBitmap(Classifier.IMG_WIDTH, Classifier.IMG_WIDTH));
+                            runOnUiThread(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    if(prediction.getConfidence() > Prediction.THRESHOLD)
+                                        detectionTextView.setText("Detected: " + prediction.getLabel() + ": " + prediction.getConfidence());
+                                }
+                            });
+                        }
+
+                    }
+                }).start();
 
             }
         });

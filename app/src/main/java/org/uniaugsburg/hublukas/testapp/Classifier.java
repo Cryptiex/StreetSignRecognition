@@ -17,7 +17,8 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
-public class Classifier {
+public class Classifier
+{
     private static final int BATCH_SIZE = 1;
     public static final int IMG_HEIGHT = 64;
     public static final int IMG_WIDTH = 64;
@@ -89,13 +90,13 @@ public class Classifier {
 
     }
 
+
+    // TODO: Implement Threading to constantly stream
     protected Prediction detect(Bitmap input)
     {
 
-
        convertBitmapToByteBuffer(input);
        interpreter.run(inputImageBuffer, output);
-
 
         //byte max = Byte.MIN_VALUE;
         float  max = 0.0f;

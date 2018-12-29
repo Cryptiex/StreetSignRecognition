@@ -2,7 +2,7 @@ package org.uniaugsburg.hublukas.testapp;
 
 class Prediction
 {
-
+    public static final float THRESHOLD = 0.95f;
 
     private String label;
     private float confidence;
