@@ -98,10 +98,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(camera2Manager != null)
+            camera2Manager.openCamera();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        if(camera2Manager != null)
+            camera2Manager.closeCamera();
     }
 }

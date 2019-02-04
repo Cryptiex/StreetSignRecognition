@@ -105,6 +105,13 @@ public class Camera2Manager implements Camera
         Log.i("TAG", "Opened Camera");
     }
 
+    @Override
+    public void closeCamera() {
+        if(currentCamera != null)
+            currentCamera.close();
+        currentCamera = null;
+    }
+
     private void setPreviewSize(CameraCharacteristics characteristics, int textureWidth, int textureHeight) {
 
 
