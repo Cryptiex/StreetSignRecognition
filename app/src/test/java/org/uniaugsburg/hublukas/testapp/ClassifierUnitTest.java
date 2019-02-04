@@ -7,11 +7,9 @@ import org.junit.Test;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class ClassifierUnitTest
-{
+public class ClassifierUnitTest {
     @Test
-    public void classificationWorks()
-    {
+    public void classificationWorks() {
 
        /* AssetManager assetManager = context.getAssets();
 
